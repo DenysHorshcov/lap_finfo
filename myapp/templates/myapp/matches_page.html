@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matches List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Matches List</h2>
+        {% if user.is_superuser %}
+        <a href="{% url 'add_match' %}" class="btn btn-primary">Add Match</a>
+        {% endif %}
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Home club</th>
+                <th scope="col">Away club</th>
+                <th scope="col">Home goals</th>
+                <th scope="col">Away goals</th>
+                <th scope="col">date</th>
+                {% if user.is_superuser %}
+                <th>Actions</th>
+                {% endif %}
+              </tr>
+            </thead>
+            <tbody>
+                {% for entry in data %}
+                <tr>
+                    <td>{{ entry.home_club.full_title }}</td>
+                    <td>{{ entry.away_club.full_title }}</td>
+                    <td>{{ entry.home_goals }}</td>
+                    <td>{{ entry.away_goals }}</td>
+                    <td>{{ entry.date }}</td>
+                    {% if user.is_superuser %}
+                    <td>
+                        <a href="{% url 'edit_match' entry.id %}" class="btn btn-primary btn-sm">Edit</a>
+                        <a href="{% url 'delete_match_confirm' entry.id %}" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No data available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+    </div>
+</body>
+</html>
