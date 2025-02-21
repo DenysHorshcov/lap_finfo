@@ -4,8 +4,11 @@ from .forms import LeaguesForm, PlayersForm, ClubsForm, MatchesForm
 
 # Create your views here.
 def main_page(request):
+    return render(request, 'myapp/main_page.html', {})
+
+def leagues_page(request):
     data = Leagues.objects.all()
-    return render(request, 'myapp/main_page.html', {'data': data})
+    return render(request, 'myapp/leagues_page.html', {'data': data})
 
 def players_page(request):
     data = Players.objects.all()
