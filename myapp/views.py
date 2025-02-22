@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Leagues, Players, Clubs, Matches
+from .models import Leagues, Players, Clubs, Matches, PlayersPositions, Positions
 from .forms import LeaguesForm, PlayersForm, ClubsForm, MatchesForm
 
 # Create your views here.
@@ -191,6 +191,8 @@ def league_detail(request, league_id):
 def club_detail(request, club_id):
     club = get_object_or_404(Clubs, id=club_id)
     players = Players.objects.filter(current_club = club_id)
+    player_ids = list(players.values_list('id', flat=True))
+    #positions = Positions.objects.filter(id__in=PlayersPositions.objects.filter(players_id__in=player_ids).values_list('positions_id', flat=True))
 
     # Get matches where home_club_id or away_club_id is in club_ids
     matches = Matches.objects.filter(home_club=club_id) | Matches.objects.filter(away_club=club_id)
@@ -199,5 +201,6 @@ def club_detail(request, club_id):
 
 def player_detail(request, player_id):
     player = get_object_or_404(Players, id=player_id)
+    positions = Positions.objects.filter(id__in=PlayersPositions.objects.filter(players_id=player.id).values_list('positions_id', flat=True))
 
-    return render(request, 'myapp/details/player_detail.html', {'players': player})
+    return render(request, 'myapp/details/player_detail.html', {'players': player, 'positions': positions})

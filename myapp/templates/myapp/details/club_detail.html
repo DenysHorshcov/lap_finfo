@@ -44,7 +44,15 @@
             <ul class="list-group">
                 {% for player in players %}
                 <li class="list-group-item">
-                    <p><a href="{% url 'player_detail' player.id%}" class="btn btn-primary">{{ player.player_name }}</a> {{player.birthday}}</p>
+                    <p><a href="{% url 'player_detail' player.id%}" class="btn btn-primary">{{ player.player_name }}</a>
+                        <p>
+                            {% for position in positions %}
+                            <li class="list-group-item">{{ position.title }}</li>
+                            {% empty %}
+                            <li class="list-group-item">No matches found for this league.</li>
+                            {% endfor %}
+                        </p>
+                    </p>
                 </li>
                 {% empty %}
                 <li class="list-group-item">No players found for this club.</li>
