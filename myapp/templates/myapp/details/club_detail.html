@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}{{ club.full_title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ club.full_title }}</h2>
+    <p><strong>League:</strong> {{ club.league.full_title }}</p>
+    <p><strong>Country:</strong> {{ club.league.country.full_title }}</p>
+    
+    <ul class="nav nav-tabs mt-4" id="leagueTabs">
+        <li class="nav-item">
+            <a class="nav-link" id="matches-tab" data-bs-toggle="tab" href="#matches">Matches</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" id="players-tab" data-bs-toggle="tab" href="#players">Players</a>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+        <!-- Matches Tab -->
+        <div class="tab-pane fade show active" id="matches">
+            <h4>Matches in {{ club.full_title }}</h4>
+            {% if user.is_superuser %}
+            <a href="{% url 'add_match' %}" class="btn btn-primary">Add Match</a>
+            {% endif %}
+            <ul class="list-group">
+                {% for match in matches %}
+                <li class="list-group-item">
+                    <p>{{ match.home_club.full_title }} {{ match.home_goals }} - {{ match.away_goals }} {{ match.away_club.full_title }}</p>
+                    <p>{{ match.date }}</p> 
+                </li>
+                {% empty %}
+                <li class="list-group-item">No matches found for this league.</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <!-- Clubs Tab -->
+        <div class="tab-pane fade " id="players">
+            <h4>Players in {{ club.full_title }}</h4>
+            {% if user.is_superuser %}
+            <a href="{% url 'add_player' %}" class="btn btn-primary">Add Player</a>
+            {% endif %}
+            <ul class="list-group">
+                {% for player in players %}
+                <li class="list-group-item">
+                    {{ player.player_name }} {{player.birthday}}
+                </li>
+                {% empty %}
+                <li class="list-group-item">No players found for this club.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    
+
+    <a href="{% url 'leagues_page' %}" class="btn btn-secondary">Back to Leagues</a>
+</div>
+{% endblock %}

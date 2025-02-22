@@ -187,3 +187,12 @@ def league_detail(request, league_id):
     )
 
     return render(request, 'myapp/details/league_detail.html', {'league': league, 'standings': standings_list, 'matches': matches})
+
+def club_detail(request, club_id):
+    club = get_object_or_404(Clubs, id=club_id)
+    players = Players.objects.filter(current_club = club_id)
+
+    # Get matches where home_club_id or away_club_id is in club_ids
+    matches = Matches.objects.filter(home_club=club_id) | Matches.objects.filter(away_club=club_id)
+
+    return render(request, 'myapp/details/club_detail.html', {'club': club, 'matches': matches, 'players': players})

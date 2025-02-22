@@ -35,7 +35,7 @@
                     {% for team in standings %}
                     <tr>
                         <td>{{ forloop.counter }}</td>
-                        <td>{{ team.club.full_title }}</td>
+                        <td><a href="{% url 'club_detail' team.club.id %}" class="btn btn-primary btn">{{ team.club.full_title }}</a></td>
                         <td>{{ team.points }}</td>
                         <td>{{ team.wins }}</td>
                         <td>{{ team.draws }}</td>
@@ -51,6 +51,9 @@
         <!-- Matches Tab -->
         <div class="tab-pane fade" id="matches">
             <h4>Matches in {{ league.full_title }}</h4>
+            {% if user.is_superuser %}
+        <a href="{% url 'add_match' %}" class="btn btn-primary">Add Match</a>
+        {% endif %}
             <ul class="list-group">
                 {% for match in matches %}
                 <li class="list-group-item">
