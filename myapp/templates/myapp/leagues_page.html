@@ -24,8 +24,10 @@
             </thead>
             <tbody>
                 {% for entry in data %}
-                <tr>
-                    <td>{{ entry.full_title }}</td>
+                <tro>
+                    <td>
+                        <a href="{% url 'league_detail' entry.id %}" class="btn btn-primary btn-sm">{{ entry.full_title }}</a>
+                    </td>
                     <td>{{ entry.country.full_title }}</td>
                     {% if user.is_superuser %}
                     <td>

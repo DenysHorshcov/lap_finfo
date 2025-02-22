@@ -146,3 +146,13 @@ def delete_club_confirm(request, club_id):
         return redirect('clubs_page')
 
     return render(request, 'myapp/forms/delete_club_confirm.html', {'club': club})
+
+def league_detail(request, league_id):
+    league = get_object_or_404(Leagues, id=league_id)
+    clubs = Clubs.objects.filter(league = league.id)
+    club_ids = clubs.values_list('id', flat=True)
+
+    # Get matches where home_club_id or away_club_id is in club_ids
+    matches = Matches.objects.filter(home_club__in=club_ids) | Matches.objects.filter(away_club__in=club_ids)
+
+    return render(request, 'myapp/details/league_detail.html', {'league': league, 'clubs': clubs, 'matches': matches})
