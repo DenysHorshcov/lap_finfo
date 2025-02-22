@@ -155,4 +155,35 @@ def league_detail(request, league_id):
     # Get matches where home_club_id or away_club_id is in club_ids
     matches = Matches.objects.filter(home_club__in=club_ids) | Matches.objects.filter(away_club__in=club_ids)
 
-    return render(request, 'myapp/details/league_detail.html', {'league': league, 'clubs': clubs, 'matches': matches})
+    standings = {club.id: {"club": club, "points": 0, "wins": 0, "draws": 0, "losses": 0} for club in clubs}
+
+    # Process each match
+    for match in matches:
+        if match.home_goals is None or match.away_goals is None:
+            continue  # Skip matches without a result
+
+        # Get home and away clubs
+        home_club = match.home_club
+        away_club = match.away_club
+
+        # Determine result
+        if match.home_goals > match.away_goals:
+            standings[home_club.id]["wins"] += 1
+            standings[home_club.id]["points"] += 3
+            standings[away_club.id]["losses"] += 1
+        elif match.home_goals < match.away_goals:
+            standings[away_club.id]["wins"] += 1
+            standings[away_club.id]["points"] += 3
+            standings[home_club.id]["losses"] += 1
+        else:  # Draw
+            standings[home_club.id]["draws"] += 1
+            standings[away_club.id]["draws"] += 1
+            standings[home_club.id]["points"] += 1
+            standings[away_club.id]["points"] += 1
+
+    # Convert standings dict to sorted list (by points, then wins)
+    standings_list = sorted(
+        standings.values(), key=lambda x: (-x["points"], -x["wins"], -x["draws"], x["losses"])
+    )
+
+    return render(request, 'myapp/details/league_detail.html', {'league': league, 'standings': standings_list, 'matches': matches})
