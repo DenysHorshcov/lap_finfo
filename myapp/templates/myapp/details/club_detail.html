@@ -44,7 +44,7 @@
             <ul class="list-group">
                 {% for player in players %}
                 <li class="list-group-item">
-                    {{ player.player_name }} {{player.birthday}}
+                    <p><a href="{% url 'player_detail' player.id%}" class="btn btn-primary">{{ player.player_name }}</a> {{player.birthday}}</p>
                 </li>
                 {% empty %}
                 <li class="list-group-item">No players found for this club.</li>

@@ -196,3 +196,8 @@ def club_detail(request, club_id):
     matches = Matches.objects.filter(home_club=club_id) | Matches.objects.filter(away_club=club_id)
 
     return render(request, 'myapp/details/club_detail.html', {'club': club, 'matches': matches, 'players': players})
+
+def player_detail(request, player_id):
+    player = get_object_or_404(Players, id=player_id)
+
+    return render(request, 'myapp/details/player_detail.html', {'players': player})

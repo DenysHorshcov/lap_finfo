@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import main_page, add_league, edit_league, delete_league_confirm, players_page, add_player, edit_player, delete_player_confirm, clubs_page, add_club, edit_club, delete_club_confirm, matches_page, add_match, edit_match, delete_match_confirm, leagues_page, league_detail, club_detail
+from .views import main_page, add_league, edit_league, delete_league_confirm, players_page, add_player, edit_player, delete_player_confirm, clubs_page, add_club, edit_club, delete_club_confirm, matches_page, add_match, edit_match, delete_match_confirm, leagues_page, league_detail, club_detail, player_detail
 
 urlpatterns = [
     path('', main_page, name='main_page'),
@@ -22,4 +22,5 @@ urlpatterns = [
 
     path('league/<int:league_id>/', league_detail, name='league_detail'),
     path('club/<int:club_id>/', club_detail, name='club_detail'),
+    path('player/<int:player_id>/', player_detail, name='player_detail'),
 ]

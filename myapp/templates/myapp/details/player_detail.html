@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}{{ players.player_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ players.player_name }}</h2>
+    <p><strong>Country:</strong> {{ players.country.full_title }}</p>
+    
+</div>
+{% endblock %}
