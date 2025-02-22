@@ -27,7 +27,7 @@
             <tbody>
                 {% for entry in data %}
                 <tr>
-                    <td>{{ entry.full_title }}</td>
+                    <td><a href="{% url 'club_detail' entry.id %}" class="btn btn-primary btn">{{ entry.full_title }}</a></td>
                     <td>{{ entry.location }}</td>
                     <td>{{ entry.stadium }}</td>
                     <td>{{ entry.league.full_title }}</td>

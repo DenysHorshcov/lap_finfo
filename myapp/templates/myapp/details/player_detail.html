@@ -6,6 +6,7 @@
 <div class="container mt-4">
     <h2>{{ players.player_name }}</h2>
     <p><strong>Country:</strong> {{ players.country.full_title }}</p>
+    <p><strong>Club:</strong> <a href="{% url 'club_detail' players.current_club_id %}" class="btn btn-primary btn">{{ players.current_club.full_title }}</a></p>
     
 </div>
 {% endblock %}

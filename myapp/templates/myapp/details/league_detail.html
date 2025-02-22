@@ -57,7 +57,7 @@
             <ul class="list-group">
                 {% for match in matches %}
                 <li class="list-group-item">
-                    <p>{{ match.home_club.full_title }} {{ match.home_goals }} - {{ match.away_goals }} {{ match.away_club.full_title }}</p>
+                    <p><a href="{% url 'club_detail' match.home_club_id %}" class="btn btn-primary btn">{{ match.home_club.full_title }}</a> {{ match.home_goals }} - {{ match.away_goals }} <a href="{% url 'club_detail' match.away_club_id %}" class="btn btn-primary btn">{{ match.away_club.full_title }}</a></p>
                     <p>{{ match.date }}</p> 
                 </li>
                 {% empty %}

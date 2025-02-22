@@ -27,9 +27,9 @@
             <tbody>
                 {% for entry in data %}
                 <tr>
-                    <td>{{ entry.player_name }}</td>
+                    <td><a href="{% url 'player_detail' entry.id %}" class="btn btn-primary btn">{{ entry.player_name }}</a></td>
                     <td>{{ entry.birthday }}</td>
-                    <td>{{ entry.current_club.full_title }}</td>
+                    <td><a href="{% url 'club_detail' entry.current_club_id %}" class="btn btn-primary btn">{{ entry.current_club.full_title }}</a></td>
                     <td>{{ entry.country.full_title }}</td>
                     {% if user.is_superuser %}
                     <td>

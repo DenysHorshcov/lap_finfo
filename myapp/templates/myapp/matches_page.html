@@ -28,8 +28,8 @@
             <tbody>
                 {% for entry in data %}
                 <tr>
-                    <td>{{ entry.home_club.full_title }}</td>
-                    <td>{{ entry.away_club.full_title }}</td>
+                    <td><a href="{% url 'club_detail' entry.home_club_id %}" class="btn btn-primary btn">{{ entry.home_club.full_title }}</a></td>
+                    <td><a href="{% url 'club_detail' entry.away_club_id %}" class="btn btn-primary btn">{{ entry.away_club.full_title }}</a></td>
                     <td>{{ entry.home_goals }}</td>
                     <td>{{ entry.away_goals }}</td>
                     <td>{{ entry.date }}</td>
