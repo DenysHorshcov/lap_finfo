@@ -191,13 +191,21 @@ def league_detail(request, league_id):
 def club_detail(request, club_id):
     club = get_object_or_404(Clubs, id=club_id)
     players = Players.objects.filter(current_club = club_id)
-    player_ids = list(players.values_list('id', flat=True))
-    #positions = Positions.objects.filter(id__in=PlayersPositions.objects.filter(players_id__in=player_ids).values_list('positions_id', flat=True))
+    
 
-    # Get matches where home_club_id or away_club_id is in club_ids
+    players_dist = {} 
+
+    for player in players:
+        positions = Positions.objects.filter(
+            id__in=PlayersPositions.objects.filter(players_id=player.id).values_list('positions_id', flat=True)
+        )  
+
+        if player.id not in players_dist:
+            players_dist[player.id] = {'player': player, 'positions': positions} 
+
     matches = Matches.objects.filter(home_club=club_id) | Matches.objects.filter(away_club=club_id)
 
-    return render(request, 'myapp/details/club_detail.html', {'club': club, 'matches': matches, 'players': players})
+    return render(request, 'myapp/details/club_detail.html', {'club': club, 'matches': matches, 'players': players_dist})
 
 def player_detail(request, player_id):
     player = get_object_or_404(Players, id=player_id)

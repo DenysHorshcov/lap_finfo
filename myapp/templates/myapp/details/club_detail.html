@@ -42,21 +42,25 @@
             <a href="{% url 'add_player' %}" class="btn btn-primary">Add Player</a>
             {% endif %}
             <ul class="list-group">
-                {% for player in players %}
-                <li class="list-group-item">
-                    <p><a href="{% url 'player_detail' player.id%}" class="btn btn-primary">{{ player.player_name }}</a>
-                        <p>
-                            {% for position in positions %}
-                            <li class="list-group-item">{{ position.title }}</li>
-                            {% empty %}
-                            <li class="list-group-item">No matches found for this league.</li>
-                            {% endfor %}
-                        </p>
-                    </p>
-                </li>
+                {% for player_id, data in players.items %}
+        <li class="list-group-item">
+            {% if data.player.id %}
+                <p><a href="{% url 'player_detail' data.player.id %}" class="btn btn-primary">{{ data.player.player_name }}</a></p>
+            {% else %}
+                <p>No player found</p>
+            {% endif %}
+            
+            <ul>
+                {% for position in data.positions %}
+                    <li class="list-group-item">{{ position.title }}</li>  <!-- ✅ Corrected -->
                 {% empty %}
-                <li class="list-group-item">No players found for this club.</li>
+                    <li class="list-group-item">No positions found.</li>
                 {% endfor %}
+            </ul>
+        </li>
+    {% empty %}
+        <li class="list-group-item">No players found for this club.</li>
+    {% endfor %}
             </ul>
         </div>
     </div>
