@@ -1,6 +1,9 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Leagues, Players, Clubs, Matches, PlayersPositions, Positions
-from .forms import LeaguesForm, PlayersForm, ClubsForm, MatchesForm
+from django.db import connection
+from django.contrib import messages
+from .forms import LeaguesForm, PlayersForm, ClubsForm, MatchesForm, PlayersPositionsForm
 
 # Create your views here.
 def main_page(request):
@@ -21,6 +24,68 @@ def clubs_page(request):
 def matches_page(request):
     data = Matches.objects.all()
     return render(request, 'myapp/matches_page.html', {'data': data})
+
+def player_position_page(request):
+    players_positions = PlayersPositions.objects.select_related('players', 'positions').values(
+    'players__id', 'players__player_name',  # ✅ Correct field from Players table
+    'positions__id', 'positions__title'  # ✅ Correct field from Positions table
+    )
+
+    return render(request, 'myapp/players_positions.html', {'players_positions': players_positions})
+
+
+
+def add_player_position(request):
+    if request.method == "POST":
+        form = PlayersPositionsForm(request.POST)
+        if form.is_valid():
+            # ✅ Ensure the entry is unique before saving
+            player = form.cleaned_data['players']
+            position = form.cleaned_data['positions']
+            
+            if not PlayersPositions.objects.filter(players=player, positions=position).exists():
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        'INSERT INTO "Players_Positions" ("Players_id", "Positions_id") VALUES (%s, %s)',
+                        [player.id, position.id]
+                    )
+                messages.success(request, "Player position added successfully.")
+                return redirect('players_positions')
+            else:
+                messages.error(request, "This player is already assigned to this position.")
+    else:
+        form = PlayersPositionsForm()
+    
+    return render(request, 'myapp/forms/add_player_position.html', {'form': form})
+
+def edit_player_position(request, player_id, position_id):
+    if request.method == "POST":
+        form = PlayersPositionsForm(request.POST)
+        if form.is_valid():
+            # ✅ Manually update the foreign key values instead of using .save()
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    'UPDATE "Players_Positions" SET "Players_id" = %s, "Positions_id" = %s WHERE "Players_id" = %s AND "Positions_id" = %s',
+                    [form.cleaned_data['players'].id, form.cleaned_data['positions'].id, player_id, position_id]
+                )
+            return redirect('players_positions')
+
+    else:
+        form = PlayersPositionsForm(initial={'players': player_id, 'positions': position_id})
+
+    return render(request, 'myapp/forms/edit_player_position.html', {'form': form})
+
+def delete_player_position(request, player_id, position_id):
+    if request.method == "POST":
+        with connection.cursor() as cursor:
+            cursor.execute(
+                'DELETE FROM "Players_Positions" WHERE "Players_id" = %s AND "Positions_id" = %s',
+                [player_id, position_id]
+            )
+        return redirect('players_positions')
+
+    return render(request, 'myapp/forms/delete_player_position.html', {'player_id': player_id, 'position_id': position_id})
+
 
 def add_match(request):
     if request.method == "POST":

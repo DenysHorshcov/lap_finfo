@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Leagues, Countries, Players, Clubs, Matches
+from .models import Leagues, Countries, Players, Clubs, Matches, PlayersPositions
 
 @admin.register(Leagues)
 class LeaguesAdmin(admin.ModelAdmin):
@@ -16,6 +16,14 @@ class PlayersAdmin(admin.ModelAdmin):
     list_filter = ('player_name', 'birthday', 'current_club','country',)  # Add filter options in admin panel
     ordering = ('-id',)
     autocomplete_fields = ['country_id', 'current_club_id']
+
+@admin.register(PlayersPositions)
+class PlayersPositionsAdmin(admin.ModelAdmin):
+    list_display = ('players', 'positions')
+    search_fields = ('players__player_name', 'positions__title')  # Allow searching by title & category name
+    list_filter = ('players', 'positions')  # Add filter options in admin panel
+    ordering = ('players',)
+
 
 @admin.register(Clubs)
 class ClubsAdmin(admin.ModelAdmin):

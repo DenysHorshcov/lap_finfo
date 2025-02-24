@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Players and Positions</h2>
+<a href="{% url 'add_player_position' %}" class="btn btn-primary">Add New Player Position</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Player</th>
+            <th>Position</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in players_positions %}
+        <tr>
+            <td>{{ entry.players__player_name }}</td>
+            <td>{{ entry.positions__title }}</td>
+            <td>
+                {% if entry.players__id and entry.positions__id %}
+                <a href="{% url 'edit_player_position' entry.players__id entry.positions__id %}" class="btn btn-warning">Edit</a>
+                <a href="{% url 'delete_player_position' entry.players__id entry.positions__id %}" class="btn btn-danger">Delete</a>
+        {% else %}
+            <span class="text-danger">Invalid Data</span>  <!-- ✅ Avoids NoReverseMatch -->
+        {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

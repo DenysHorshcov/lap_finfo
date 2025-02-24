@@ -65,12 +65,13 @@ class Players(models.Model):
 
 
 class PlayersPositions(models.Model):
-    players = models.ForeignKey(Players, models.DO_NOTHING, db_column='Players_id')  # Field name made lowercase.
-    positions = models.ForeignKey('Positions', models.DO_NOTHING, db_column='Positions_id')  # Field name made lowercase.
+    players = models.ForeignKey(Players, on_delete=models.PROTECT, db_column='Players_id')  # Field name made lowercase.
+    positions = models.ForeignKey('Positions', on_delete=models.PROTECT, db_column='Positions_id')  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        unique_together = ('players', 'positions')
         db_table = 'Players_Positions'
+        managed = False
 
 
 class Positions(models.Model):
