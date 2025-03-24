@@ -9,7 +9,7 @@ from django.db import models
 
 
 class Clubs(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     full_title = models.CharField(blank=True, null=True)
     location = models.CharField(blank=True, null=True)
     stadium = models.CharField(blank=True, null=True)
@@ -18,29 +18,38 @@ class Clubs(models.Model):
     class Meta:
         managed = False
         db_table = 'Clubs'
+    
+    def __str__(self):
+        return self.full_title if self.full_title else "Unknown Position"
 
 
 class Countries(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     full_title = models.CharField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'Countries'
+    
+    def __str__(self):
+        return self.full_title if self.full_title else "Unknown Position"
 
 
 class Leagues(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     full_title = models.CharField(blank=True, null=True)
     country = models.ForeignKey(Countries, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'Leagues'
+    
+    def __str__(self):
+        return self.full_title if self.full_title else "Unknown Position"
 
 
 class Matches(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     home_club = models.ForeignKey(Clubs, models.DO_NOTHING, blank=True, null=True)
     away_club = models.ForeignKey(Clubs, models.DO_NOTHING, related_name='matches_away_club_set', blank=True, null=True)
     home_goals = models.IntegerField(blank=True, null=True)
@@ -52,8 +61,9 @@ class Matches(models.Model):
         db_table = 'Matches'
 
 
+
 class Players(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     player_name = models.CharField(blank=True, null=True)
     birthday = models.DateField(blank=True, null=True)
     current_club = models.ForeignKey(Clubs, models.DO_NOTHING, blank=True, null=True)
@@ -62,6 +72,9 @@ class Players(models.Model):
     class Meta:
         managed = False
         db_table = 'Players'
+    
+    def __str__(self):
+        return self.player_name if self.player_name else "Unnamed Player"
 
 
 class PlayersPositions(models.Model):
@@ -75,12 +88,15 @@ class PlayersPositions(models.Model):
 
 
 class Positions(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     title = models.CharField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'Positions'
+    
+    def __str__(self):
+        return self.title if self.title else "Unknown Position"
 
 
 class AuthGroup(models.Model):

@@ -7,19 +7,27 @@ class LeaguesForm(forms.ModelForm):
         fields = ['id', 'full_title', 'country']
 
 class PlayersForm(forms.ModelForm):
+
+    current_club = forms.ModelChoiceField(
+        queryset=Clubs.objects.all(),
+        label="Current Club",
+        empty_label="Select Club",
+        widget=forms.Select(attrs={'class': 'form-control'})  # Optional: Bootstrap styling
+    )
+
     class Meta:
         model = Players
-        fields = ['id', 'player_name', 'birthday', 'current_club', 'country']
+        fields = ['player_name', 'birthday', 'current_club', 'country']
 
 class ClubsForm(forms.ModelForm):
     class Meta:
         model = Clubs
-        fields = ['id', 'full_title', 'location', 'stadium', 'league']
+        fields = ['full_title', 'location', 'stadium', 'league']
 
 class MatchesForm(forms.ModelForm):
     class Meta:
         model = Matches
-        fields = ['id', 'home_club', 'away_club', 'home_goals', 'away_goals', 'date']
+        fields = ['home_club', 'away_club', 'home_goals', 'away_goals', 'date']
 
 class PlayersPositionsForm(forms.ModelForm):
     class Meta:

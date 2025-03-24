@@ -16,6 +16,10 @@ class PlayersAdmin(admin.ModelAdmin):
     list_filter = ('player_name', 'birthday', 'current_club','country',)  # Add filter options in admin panel
     ordering = ('-id',)
     autocomplete_fields = ['country_id', 'current_club_id']
+    def current_club_display(self, obj):
+        return obj.current_club.full_title  # ✅ Show club title in admin panel
+    current_club_display.admin_order_field = 'current_club'  # Allow sorting
+    current_club_display.short_description = 'Club'  # Change column name
 
 @admin.register(PlayersPositions)
 class PlayersPositionsAdmin(admin.ModelAdmin):
@@ -45,3 +49,8 @@ class MatchesAdmin(admin.ModelAdmin):
 class CountriesAdmin(admin.ModelAdmin):
     list_display = ('id', 'full_title')
     search_fields = ('full_title',)
+
+
+# ✅ Check if Players is already registered before adding it
+if not admin.site.is_registered(Players):
+    admin.site.register(Players, PlayersAdmin)
