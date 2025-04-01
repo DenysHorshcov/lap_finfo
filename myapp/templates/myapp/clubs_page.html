@@ -5,6 +5,19 @@
         {% if user.is_superuser %}
         <a href="{% url 'add_club' %}" class="btn btn-primary">Add Club</a>
         {% endif %}
+        <form method="get" class="mb-3">
+            <div class="input-group mb-2">
+                <input type="text" name="club_title" class="form-control" placeholder="Search by club_title"
+                       value="{{ club_title|default:'' }}">
+                <button type="submit" class="btn btn-outline-primary">Search</button>
+            </div>
+        
+            <div class="input-group">
+                <input type="text" name="league_title" class="form-control" placeholder="Search by league_title"
+                       value="{{ league_title|default:'' }}">
+                <button type="submit" class="btn btn-outline-success">Search</button>
+            </div>
+        </form>
         <table class="table">
             <thead>
               <tr>

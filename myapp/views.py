@@ -4,6 +4,39 @@ from .models import Leagues, Players, Clubs, Matches, PlayersPositions, Position
 from django.db import connection
 from django.contrib import messages
 from .forms import LeaguesForm, PlayersForm, ClubsForm, MatchesForm, PlayersPositionsForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, authenticate, logout
+from .forms import RegisterForm
+from django.contrib.auth.forms import AuthenticationForm
+from django.db import IntegrityError
+from django.db import models
+
+def register_user(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.email = form.cleaned_data.get('email')
+            user.save()
+            return redirect('main_page')
+    else:
+        form = RegisterForm()
+    return render(request, 'myapp/register.html', {'form': form})
+
+def login_user(request):
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('main_page')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'myapp/login.html', {'form': form})
+
+def logout_user(request):
+    logout(request)
+    return redirect('main_page')
 
 # Create your views here.
 def main_page(request):
@@ -14,16 +47,57 @@ def leagues_page(request):
     return render(request, 'myapp/leagues_page.html', {'data': data})
 
 def players_page(request):
+    name_query = request.GET.get('player_name')
+    club_query = request.GET.get('club_name')
+
     data = Players.objects.all()
-    return render(request, 'myapp/players_page.html', {'data': data})
+
+    if name_query:
+        data = data.filter(player_name__icontains=name_query)
+
+    if club_query:
+        data = data.filter(current_club__full_title__icontains=club_query)
+
+    return render(request, 'myapp/players_page.html', {
+        'data': data,
+        'player_name': name_query,
+        'club_name': club_query
+    })
 
 def clubs_page(request):
+    club_query = request.GET.get('club_title')
+    league_query = request.GET.get('league_title')
+
     data = Clubs.objects.all()
-    return render(request, 'myapp/clubs_page.html', {'data': data})
+
+    if club_query:
+        data = data.filter(full_title__icontains=club_query)
+
+    if league_query:
+        data = data.filter(league__full_title__icontains=league_query)
+
+    return render(request, 'myapp/clubs_page.html', {
+        'data': data,
+        'club_title': club_query,
+        'league_title': league_query
+    })
 
 def matches_page(request):
     data = Matches.objects.all()
-    return render(request, 'myapp/matches_page.html', {'data': data})
+    query = request.GET.get('q')
+
+    if query:
+        data = Matches.objects.filter(
+            models.Q(home_club__full_title__icontains=query) |
+            models.Q(away_club__full_title__icontains=query)
+        )
+    else:
+        data = Matches.objects.all()
+
+    return render(request, 'myapp/matches_page.html', {
+        'data': data,
+        'query': query
+    })
 
 def player_position_page(request):
     players_positions = PlayersPositions.objects.select_related('players', 'positions').values(
@@ -77,11 +151,14 @@ def edit_player_position(request, player_id, position_id):
 
 def delete_player_position(request, player_id, position_id):
     if request.method == "POST":
-        with connection.cursor() as cursor:
-            cursor.execute(
-                'DELETE FROM "Players_Positions" WHERE "Players_id" = %s AND "Positions_id" = %s',
-                [player_id, position_id]
-            )
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    'DELETE FROM "Players_Positions" WHERE "Players_id" = %s AND "Positions_id" = %s',
+                    [player_id, position_id]
+                )
+        except IntegrityError:
+            messages.error(request, "Cannot delete this position because it is referenced in another table.")
         return redirect('players_positions')
 
     return render(request, 'myapp/forms/delete_player_position.html', {'player_id': player_id, 'position_id': position_id})
@@ -113,7 +190,11 @@ def edit_match(request, match_id):
 def delete_match_confirm(request, match_id):
     match = get_object_or_404(Matches, id=match_id)
     if request.method == "POST":  # If user confirms deletion
-        match.delete()
+        try:
+            match.delete()
+            messages.success(request, "Match deleted successfully.")
+        except IntegrityError:
+            messages.error(request, "Cannot delete this match because it is referenced in another table.")
         return redirect('matches_page')
 
     return render(request, 'myapp/forms/delete_match_confirm.html', {'match': match})
@@ -144,8 +225,12 @@ def edit_league(request, league_id):
 def delete_league_confirm(request, league_id):
     league = get_object_or_404(Leagues, id=league_id)
     if request.method == "POST":  # If user confirms deletion
-        league.delete()
-        return redirect('main_page')
+        try:
+            league.delete()
+            messages.success(request, "League deleted successfully.")
+        except IntegrityError:
+            messages.error(request, "Cannot delete this league because it is referenced in another table.")
+        return redirect('leagues_page')
 
     return render(request, 'myapp/forms/delete_league_confirm.html', {'league': league})
 
@@ -154,7 +239,10 @@ def add_player(request):
         form = PlayersForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Player added successfully!")
             return redirect('players_page')  # Redirect to main page
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = PlayersForm()
     
@@ -175,7 +263,11 @@ def edit_player(request, player_id):
 def delete_player_confirm(request, player_id):
     player = get_object_or_404(Players, id=player_id)
     if request.method == "POST":  # If user confirms deletion
-        player.delete()
+        try:
+            player.delete()
+            messages.success(request, "Player deleted successfully.")
+        except IntegrityError:
+            messages.error(request, "Cannot delete this player because it is referenced in another table.")
         return redirect('players_page')
 
     return render(request, 'myapp/forms/delete_player_confirm.html', {'player': player})
@@ -207,7 +299,11 @@ def edit_club(request, club_id):
 def delete_club_confirm(request, club_id):
     club = get_object_or_404(Clubs, id=club_id)
     if request.method == "POST":  # If user confirms deletion
-        club.delete()
+        try:
+            club.delete()
+            messages.success(request, "Club deleted successfully.")
+        except IntegrityError:
+            messages.error(request, "Cannot delete this club because it is referenced in another table.")
         return redirect('clubs_page')
 
     return render(request, 'myapp/forms/delete_club_confirm.html', {'club': club})

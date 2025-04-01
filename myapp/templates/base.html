@@ -16,16 +16,154 @@
             min-height: 100vh;
         }
 
-        .container {
+        .container:not(nav .container):not(.custom-welcome-wrapper) {
             background-color: rgba(255, 255, 255, 0.85); /* світлий напівпрозорий фон для контенту */
             border-radius: 10px;
             padding: 20px;
         }
+
+        .navbar-nav .nav-link {
+            color: grey !important;
+            margin-right: 20px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            font-size: large;
+            font-weight: bold;
+            background-color: transparent !important
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #3053d2 !important;
+        }
+
+        .navbar .btn-outline-primary {
+    border-color: #0d6efd;
+    color: #0d6efd;
+    margin-left: 5px;
+    transition: 0.3s;
+}
+
+.navbar .btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.navbar .btn-outline-success {
+    border-color: #198754;
+    color: #198754;
+    margin-left: 5px;
+    transition: 0.3s;
+}
+
+.navbar .btn-outline-success:hover {
+    background-color: #198754;
+    color: white;
+}
+
+.navbar .btn-outline-danger {
+    border-color: #dc3545; /* Червоний колір */
+    color: #dc3545;
+    margin-left: 5px;
+    margin-top: 15px;
+    transition: 0.3s;
+}
+
+.navbar .btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+}
+    /* ✅ Стиль для блоку привітання */
+.custom-welcome-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    background-color: transparent;
+    padding: 20px;
+}
+
+/* ✅ Основний блок привітання */
+.custom-welcome {
+    text-align: center;
+    padding: 30px 40px;
+    border-radius: 15px;
+}
+
+/* ✅ Заголовок привітання */
+.custom-title {
+    font-size: 8rem;
+    font-weight: bold;
+    color: #e6e6e6;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.image-link {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: -1; 
+}
+
+.image-link p{
+    color: #e6e6e6;
+}
+
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'main_page' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'leagues_page' %}">Leagues</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'players_page' %}">Players</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'clubs_page' %}">Clubs</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'matches_page' %}">Matches</a></li>
+                    {% if user.is_superuser %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'players_positions' %}">Players Positions</a></li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><span class="nav-link">{{ user.username }}</span></li>
+                        <li class="nav-item">
+                            <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm ms-2">Logout</a>
+                        </li>
+                        
+                    {% else %}
+                    <!-- ✅ Login as Button -->
+                    <li class="nav-item">
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm me-2">Login</a>
+                    </li>
+                    <!-- ✅ Register as Button -->
+                    <li class="nav-item">
+                        <a href="{% url 'register' %}" class="btn btn-outline-success btn-sm">Register</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+
+    {% if messages %}
     <div class="container mt-4">
-        {% block content %}{% endblock %}
+        <div class="alert-messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+    <div class="image-link">
+        <p>https://e0.365dm.com/24/09/1600x900/skysports-man-utd-antony-carabao-cup_6688736.jpg?20240917204446</p>
     </div>
 </body>
 </html>

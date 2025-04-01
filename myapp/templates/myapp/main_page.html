@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="container mt-4", style="display: flex; flex-direction: column; gap: 10px;">
+    <!-- <div class="container mt-4", style="display: flex; flex-direction: column; gap: 10px;">
         <a href="{% url 'leagues_page' %}" class="btn btn-primary btn-lg">to Leagues</a>
         <a href="{% url 'matches_page' %}" class="btn btn-primary btn-lg">to Matches</a>
         <a href="{% url 'clubs_page' %}" class="btn btn-primary btn-lg">to Clubs</a>
@@ -8,5 +8,14 @@
         {% if user.is_superuser %}
         <a href="{% url 'players_positions' %}" class="btn btn-primary btn-lg">to Players Positions</a>
         {% endif %}
+    </div> -->
+    <div class="custom-welcome-wrapper">
+        <div class="custom-welcome">
+            {% if user.is_authenticated %}
+                <h1 class="custom-title">Welcome, {{ user.username }}</h1>
+            {% else %}
+                <h1 class="custom-title">Welcome user</h1>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}

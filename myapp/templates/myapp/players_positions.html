@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+<div class="container mt-4">
 <h2>Players and Positions</h2>
 <a href="{% url 'add_player_position' %}" class="btn btn-primary">Add New Player Position</a>
 <table class="table">
@@ -27,4 +28,5 @@
         {% endfor %}
     </tbody>
 </table>
+</div>
 {% endblock %}

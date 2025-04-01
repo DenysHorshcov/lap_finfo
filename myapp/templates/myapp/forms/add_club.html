@@ -2,6 +2,18 @@
 {% block content %}
 <div class="container mt-4">
     <h2>Add New Club</h2>
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <strong>Please fix the errors below:</strong>
+        <ul>
+            {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <li>{{ field }}: {{ error }}</li>
+            {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}

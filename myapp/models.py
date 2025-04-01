@@ -78,7 +78,7 @@ class Players(models.Model):
 
 
 class PlayersPositions(models.Model):
-    players = models.ForeignKey(Players, on_delete=models.PROTECT, db_column='Players_id')  # Field name made lowercase.
+    players = models.ForeignKey(Players, on_delete=models.PROTECT, db_column='Players_id', primary_key=True)  # Field name made lowercase.
     positions = models.ForeignKey('Positions', on_delete=models.PROTECT, db_column='Positions_id')  # Field name made lowercase.
 
     class Meta:

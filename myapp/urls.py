@@ -3,7 +3,7 @@ from .views import main_page, add_league, edit_league, delete_league_confirm, pl
 
 urlpatterns = [
     path('', main_page, name='main_page'),
-    path('l', leagues_page, name='leagues_page'),
+    path('l/', leagues_page, name='leagues_page'),
     path('add_l/', add_league, name='add_league'),
     path('edit_l/<int:league_id>/', edit_league, name='edit_league'),
     path('delete_l/<int:league_id>/', delete_league_confirm, name='delete_league_confirm'),

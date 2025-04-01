@@ -133,3 +133,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Потрібно тільки якщо вручну задаєш додаткові директорії:
 import os
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'myapp/static')]
+
+LOGIN_REDIRECT_URL = 'main_page'
+LOGOUT_REDIRECT_URL = 'login'
