@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import main_page, add_league, edit_league, delete_league_confirm, players_page, add_player, edit_player, delete_player_confirm, clubs_page, add_club, edit_club, delete_club_confirm, matches_page, add_match, edit_match, delete_match_confirm, leagues_page, league_detail, club_detail, player_detail, player_position_page, add_player_position, edit_player_position, delete_player_position
-
+from .views import toggle_favorite_match, admin_user_favorites, my_account, toggle_ban, read_unban_request
 urlpatterns = [
     path('', main_page, name='main_page'),
     path('l/', leagues_page, name='leagues_page'),
@@ -27,4 +27,10 @@ urlpatterns = [
     path('league/<int:league_id>/', league_detail, name='league_detail'),
     path('club/<int:club_id>/', club_detail, name='club_detail'),
     path('player/<int:player_id>/', player_detail, name='player_detail'),
+    path('toggle-favorite/<int:match_id>/', toggle_favorite_match, name='toggle_favorite'),
+
+    path('user-favorites/', admin_user_favorites, name='admin_user_favorites'),
+    path('my-account/', my_account, name='my_account'),
+    path('toggle-ban/<int:user_id>/', toggle_ban, name='toggle_ban'),
+    path('read-unban-request/<int:user_id>/', read_unban_request, name='read_unban_request'),
 ]

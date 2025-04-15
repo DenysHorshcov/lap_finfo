@@ -6,6 +6,8 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from django.contrib.auth.models import User
+
 
 
 class Clubs(models.Model):
@@ -97,6 +99,14 @@ class Positions(models.Model):
     
     def __str__(self):
         return self.title if self.title else "Unknown Position"
+
+class FavoriteMatch(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    match = models.ForeignKey(Matches, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'match')
+        db_table = 'FavoriteMatches'
 
 
 class AuthGroup(models.Model):

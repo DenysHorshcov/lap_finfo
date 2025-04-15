@@ -3,6 +3,19 @@
 <div class="container mt-4">
 <h2>Players and Positions</h2>
 <a href="{% url 'add_player_position' %}" class="btn btn-primary">Add New Player Position</a>
+<form method="get" class="mb-3">
+    <div class="input-group mb-2">
+        <input type="text" name="player" class="form-control" placeholder="Search by player"
+               value="{{ player|default:'' }}">
+        <button type="submit" class="btn btn-outline-primary">Search</button>
+    </div>
+
+    <div class="input-group">
+        <input type="text" name="position" class="form-control" placeholder="Search by position"
+               value="{{ position|default:'' }}">
+        <button type="submit" class="btn btn-outline-success">Search</button>
+    </div>
+</form>
 <table class="table">
     <thead>
         <tr>

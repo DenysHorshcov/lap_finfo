@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Leagues, Players, Clubs, Matches, PlayersPositions, Positions
+from .models import Leagues, Players, Clubs, Matches, PlayersPositions, Positions, FavoriteMatch
 from django.db import connection
 from django.contrib import messages
 from .forms import LeaguesForm, PlayersForm, ClubsForm, MatchesForm, PlayersPositionsForm
@@ -10,6 +10,16 @@ from .forms import RegisterForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.db import IntegrityError
 from django.db import models
+
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.models import User
+
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from .models_ext import Profile, UnbanRequest
 
 def register_user(request):
     if request.method == "POST":
@@ -40,7 +50,13 @@ def logout_user(request):
 
 # Create your views here.
 def main_page(request):
-    return render(request, 'myapp/main_page.html', {})
+    if hasattr(request.user, 'profile') and request.user.profile.is_banned:
+        if request.method == 'POST':
+            message = request.POST.get('message', '').strip()
+            if message:
+                UnbanRequest.objects.update_or_create(user=request.user, defaults={'message': message})
+                messages.success(request, "Your unban request has been submitted.")
+    return render(request, 'myapp/main_page.html')
 
 def leagues_page(request):
     data = Leagues.objects.all()
@@ -85,7 +101,11 @@ def clubs_page(request):
 def matches_page(request):
     data = Matches.objects.all()
     query = request.GET.get('q')
+    favorites = []
 
+    if request.user.is_authenticated and not request.user.is_superuser:
+        favorites = FavoriteMatch.objects.filter(user=request.user).values_list('match_id', flat=True)
+    
     if query:
         data = Matches.objects.filter(
             models.Q(home_club__full_title__icontains=query) |
@@ -96,7 +116,8 @@ def matches_page(request):
 
     return render(request, 'myapp/matches_page.html', {
         'data': data,
-        'query': query
+        'query': query,
+        'favorites': favorites
     })
 
 def player_position_page(request):
@@ -105,9 +126,18 @@ def player_position_page(request):
     'positions__id', 'positions__title'  # ✅ Correct field from Positions table
     )
 
-    return render(request, 'myapp/players_positions.html', {'players_positions': players_positions})
+    player = request.GET.get('player')
+    position = request.GET.get('position')
 
+    if player:
+        players_positions = players_positions.filter(players__player_name__icontains=player)
 
+    if position:
+        players_positions = players_positions.filter(positions__title__icontains=position)
+
+    return render(request, 'myapp/players_positions.html', {'players_positions': players_positions, 'player': player,
+        'position': position
+    })
 
 def add_player_position(request):
     if request.method == "POST":
@@ -373,3 +403,92 @@ def player_detail(request, player_id):
     positions = Positions.objects.filter(id__in=PlayersPositions.objects.filter(players_id=player.id).values_list('positions_id', flat=True))
 
     return render(request, 'myapp/details/player_detail.html', {'players': player, 'positions': positions})
+
+def check_ban(view_func):
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_authenticated:
+            profile = Profile.objects.get(user=request.user)
+            if profile.is_banned:
+                return redirect('main_page')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+@check_ban
+@login_required
+def toggle_favorite_match(request, match_id):
+    if request.user.is_superuser:
+        return JsonResponse({'status': 'error', 'message': 'Admins cannot modify favorites.'})
+
+    match = get_object_or_404(Matches, id=match_id)
+    favorite, created = FavoriteMatch.objects.get_or_create(user=request.user, match=match)
+
+    if not created:
+        favorite.delete()
+        return JsonResponse({'status': 'removed'})
+    return JsonResponse({'status': 'added'})
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def toggle_ban(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    profile, created = Profile.objects.get_or_create(user=user)
+    profile.is_banned = not profile.is_banned
+    profile.save()
+    return redirect('admin_user_favorites')
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_user_favorites(request):
+    users = User.objects.filter(is_superuser=False)
+    favorites_by_user = {}
+
+    for user in users:
+        favorite_matches = FavoriteMatch.objects.filter(user=user).select_related('match')
+        favorites_by_user[user] = [f.match for f in favorite_matches]
+
+    return render(request, 'myapp/user_favorites.html', {
+        'favorites_by_user': favorites_by_user
+    })
+
+@login_required
+def my_account(request):
+    user = request.user
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+
+        if name:
+            user.username = name
+        if email:
+            user.email = email
+        user.save()
+
+        # Пароль (через окрему форму)
+        password_form = PasswordChangeForm(user, request.POST)
+        if password_form.is_valid():
+            password_form.save()
+            update_session_auth_hash(request, password_form.user)
+            messages.success(request, "Profile updated successfully.")
+        else:
+            if request.POST.get('old_password'):
+                messages.error(request, "Password change failed. Check your inputs.")
+    else:
+        password_form = PasswordChangeForm(user)
+
+    favorites = FavoriteMatch.objects.filter(user=user).select_related('match')
+    return render(request, 'myapp/my_account.html', {
+        'user': user,
+        'favorites': [f.match for f in favorites],
+        'password_form': password_form
+    })
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def read_unban_request(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    request_text = get_object_or_404(UnbanRequest, user=user)
+    return render(request, 'myapp/unban_request.html', {
+        'user_obj': user,
+        'message': request_text.message,
+        'created': request_text.created_at
+    })
+

@@ -116,6 +116,7 @@
         <div class="container">
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
+                    {% if not user.profile.is_banned %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'main_page' %}">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'leagues_page' %}">Leagues</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'players_page' %}">Players</a></li>
@@ -123,11 +124,15 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'matches_page' %}">Matches</a></li>
                     {% if user.is_superuser %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'players_positions' %}">Players Positions</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin_user_favorites' %}">Users</a>
+                    </li>
+                    {% endif %}
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
-                        <li class="nav-item"><span class="nav-link">{{ user.username }}</span></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'my_account' %}">{{ user.username }}</a></li>
                         <li class="nav-item">
                             <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm ms-2">Logout</a>
                         </li>

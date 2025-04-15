@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+<h2>All Users and Their Favorite Matches</h2>
+
+{% for user, matches in favorites_by_user.items %}
+    <div class="mb-4">
+        <h5>{{ user.username }}</h5>
+        <p>{{ user.email }}</p>
+        <form method="post" action="{% url 'toggle_ban' user.id %}">
+            {% csrf_token %}
+            {% if user.profile.is_banned %}
+                <button type="submit" class="btn btn-success btn-sm">Unban</button>
+            {% else %}
+                <button type="submit" class="btn btn-danger btn-sm">Ban</button>
+            {% endif %}
+        </form>
+        {% if user.profile.is_banned and user.unbanrequest %}
+            <a href="{% url 'read_unban_request' user.id %}" class="btn btn-outline-info btn-sm ms-2">📩 Read Unban Request</a>
+        {% endif %}
+        {% if matches %}
+        <table class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <th>Home Club</th>
+                    <th>Away Club</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for match in matches %}
+                <tr>
+                    <td>{{ match.home_club.full_title }}</td>
+                    <td>{{ match.away_club.full_title }}</td>
+                    <td>{{ match.date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted">No favorite matches.</p>
+        {% endif %}
+    </div>
+
+{% endfor %}
+</div>
+{% endblock %}

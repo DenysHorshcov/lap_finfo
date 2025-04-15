@@ -1,17 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
-    <!-- <div class="container mt-4", style="display: flex; flex-direction: column; gap: 10px;">
-        <a href="{% url 'leagues_page' %}" class="btn btn-primary btn-lg">to Leagues</a>
-        <a href="{% url 'matches_page' %}" class="btn btn-primary btn-lg">to Matches</a>
-        <a href="{% url 'clubs_page' %}" class="btn btn-primary btn-lg">to Clubs</a>
-        <a href="{% url 'players_page' %}" class="btn btn-primary btn-lg">to Players</a>
-        {% if user.is_superuser %}
-        <a href="{% url 'players_positions' %}" class="btn btn-primary btn-lg">to Players Positions</a>
-        {% endif %}
-    </div> -->
     <div class="custom-welcome-wrapper">
         <div class="custom-welcome">
-            {% if user.is_authenticated %}
+            {% if user.is_authenticated and user.profile.is_banned %}
+                <h1 class="custom-title text-danger">Забанений</h1>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <textarea name="message" class="form-control mb-3" rows="4" placeholder="Write your unban request..."></textarea>
+                    <button type="submit" class="btn btn-warning">Send Unban Request</button>
+                </form>
+
+                <a href="{% url 'logout' %}" class="btn btn-danger mt-3">Logout</a>
+            {% elif user.is_authenticated %}
                 <h1 class="custom-title">Welcome, {{ user.username }}</h1>
             {% else %}
                 <h1 class="custom-title">Welcome user</h1>

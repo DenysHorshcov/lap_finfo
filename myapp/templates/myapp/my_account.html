@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+<h2>My Account</h2>
+
+<form method="post" class="mb-4">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" name="name" id="name" class="form-control" value="{{ user.username }}">
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" name="email" id="email" class="form-control" value="{{ user.email }}">
+    </div>
+    <button type="submit" class="btn btn-success">Update Profile</button>
+</form>
+
+<h4>Change Password</h4>
+<form method="post">
+    {% csrf_token %}
+    {{ password_form.as_p }}
+    <button type="submit" class="btn btn-warning">Change Password</button>
+</form>
+
+<hr>
+<h4>My Favorite Matches</h4>
+{% if favorites %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Home</th>
+            <th>Away</th>
+            <th>Home goals</th>
+            <th>Away goals</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for match in favorites %}
+        <tr>
+            <td>{{ match.home_club.full_title }}</td>
+            <td>{{ match.away_club.full_title }}</td>
+            <td>{{ match.home_goals }}</td>
+            <td>{{ match.away_goals }}</td>
+            <td>{{ match.date }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No favorite matches.</p>
+{% endif %}
+</div>
+{% endblock %}
